@@ -4,7 +4,7 @@ import { Board, EMPTY, FILLED_X, FILLED_O } from "./Board";
 
 export interface BoardSquares { squares: number[] }
 export interface GameProps {}
-export interface GameState { history: BoardSquares[], xPlayedLast: boolean }
+export interface GameState { history: BoardSquares[], xPlayedLast: boolean, step: number }
 
 export class Game extends React.Component<GameProps, GameState> {
     constructor() {
@@ -15,7 +15,8 @@ export class Game extends React.Component<GameProps, GameState> {
         }
         this.state = {
             history: [{squares: squares}],
-            xPlayedLast: false
+            xPlayedLast: false,
+            step: 0
         };
     }
 
@@ -23,9 +24,16 @@ export class Game extends React.Component<GameProps, GameState> {
         return value == FILLED_X ? 'X' : (value == FILLED_O ? 'O' : '');
     }
 
+    jumpTo(step: number) {
+        this.setState({
+            xPlayedLast: step % 2 !== 0,
+            step: step,
+        } as GameState);
+    }
+
     handleClick(i: number) {
         const history = this.state.history;
-        const current = history[history.length - 1];
+        const current = history[this.state.step];
         const squares = current.squares.slice();
 
         // Handle no moves on this square
@@ -37,14 +45,23 @@ export class Game extends React.Component<GameProps, GameState> {
 
         this.setState({
             history: history.concat([{squares: squares}]),
-            xPlayedLast: !this.state.xPlayedLast
+            xPlayedLast: !this.state.xPlayedLast,
+            step: history.length
         });
     }
 
     render() {
         const history = this.state.history;
-        const current = history[history.length - 1];
+        const current = history[this.state.step];
         const winner = this.calculateWinner(current.squares);
+        const moves = history.map((step: BoardSquares, move: number) => {
+            const desc = move ? 'Move #' + move : 'Game start';
+            return (
+                <li key={move}>
+                    <a href="#" onClick={() => this.jumpTo(move)}>{desc}</a>
+                </li>
+            );
+        });
 
         let status: string;
         if (winner) {
@@ -61,7 +78,7 @@ export class Game extends React.Component<GameProps, GameState> {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
-                    <ol>{/* TODO */}</ol>
+                    <ol>{moves}</ol>
                 </div>
             </div>
         );
