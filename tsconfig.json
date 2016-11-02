@@ -8,7 +8,9 @@
         "jsx": "react"
     },
     "files": [
-        "./src/components/Hello.tsx",
+        "./src/components/Game.tsx",
+        "./src/components/Board.tsx",
+        "./src/components/Square.tsx",
         "./src/index.tsx"
     ]
 }
